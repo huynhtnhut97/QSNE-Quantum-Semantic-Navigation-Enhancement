@@ -99,7 +99,7 @@ Both `train.py` and `evaluate.py` take a `--backend` flag that selects
 the environment. The two backends expose the same observation dict, so
 the rest of the pipeline is identical.
 
-### Backend 1: Gazebo (matches the paper's experimental setup)
+### Backend 1: Gazebo
 
 Bring up Gazebo + Husky in one terminal, then launch training in another:
 
