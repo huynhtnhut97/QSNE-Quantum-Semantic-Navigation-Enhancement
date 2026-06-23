@@ -1,0 +1,18 @@
+# Core scientific stack
+numpy>=1.24
+torch>=1.13
+
+# Quantum simulation
+pennylane>=0.32
+
+# LLM access (optional but recommended)
+openai>=1.6
+transformers>=4.36
+
+# Configuration
+pyyaml>=6.0
+
+# ROS dependencies are NOT listed here.
+# Install ROS Noetic separately and source the workspace:
+#     source /opt/ros/noetic/setup.bash
+# Required ROS packages: rospy, sensor_msgs, nav_msgs, geometry_msgs, tf.

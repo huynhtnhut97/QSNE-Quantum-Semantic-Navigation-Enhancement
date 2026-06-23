@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!--
+    QSNE ROS launch file for the Husky UGV.
+
+    Launches:
+        1. The QSNE bridge node (subscribes to /noisy-scan, /odom, /move_base_simple/goal;
+           publishes /cmd_vel, /scan_corrected).
+        2. Gmapping configured to consume /scan_corrected instead of /scan.
+        3. move_base with the default global planner and a QSNE local-planner override.
+
+    Usage:
+        roslaunch qsne qsne.launch checkpoint:=/path/to/qsne.pt
+-->
+<launch>
+
+    <!-- User-supplied arguments. -->
+    <arg name="checkpoint" default="$(find qsne)/checkpoints/qsne.pt"/>
+    <arg name="control_rate_hz" default="10.0"/>
+    <arg name="use_llm" default="true"/>
+
+    <!-- QSNE bridge node. -->
+    <node name="qsne_bridge" pkg="qsne" type="ros_bridge_node.py" output="screen">
+        <param name="checkpoint" value="$(arg checkpoint)"/>
+        <param name="control_rate_hz" value="$(arg control_rate_hz)"/>
+        <param name="use_llm" value="$(arg use_llm)"/>
+    </node>
+
+    <!-- Gmapping consumes the corrected scan stream. -->
+    <node name="gmapping" pkg="gmapping" type="slam_gmapping" output="screen">
+        <remap from="scan" to="/scan_corrected"/>
+        <param name="base_frame" value="base_link"/>
+        <param name="odom_frame" value="odom"/>
+        <param name="map_update_interval" value="2.0"/>
+        <param name="maxUrange" value="30.0"/>
+        <param name="sigma" value="0.05"/>
+        <param name="kernelSize" value="1"/>
+        <param name="lstep" value="0.05"/>
+        <param name="astep" value="0.05"/>
+        <param name="iterations" value="5"/>
+        <param name="lsigma" value="0.075"/>
+        <param name="ogain" value="3.0"/>
+        <param name="lskip" value="0"/>
+        <param name="srr" value="0.01"/>
+        <param name="srt" value="0.02"/>
+        <param name="str" value="0.01"/>
+        <param name="stt" value="0.02"/>
+        <param name="linearUpdate" value="0.5"/>
+        <param name="angularUpdate" value="0.436"/>
+        <param name="temporalUpdate" value="-1.0"/>
+        <param name="resampleThreshold" value="0.5"/>
+        <param name="particles" value="80"/>
+        <param name="xmin" value="-50.0"/>
+        <param name="ymin" value="-50.0"/>
+        <param name="xmax" value="50.0"/>
+        <param name="ymax" value="50.0"/>
+        <param name="delta" value="0.05"/>
+        <param name="llsamplerange" value="0.01"/>
+        <param name="llsamplestep" value="0.01"/>
+        <param name="lasamplerange" value="0.005"/>
+        <param name="lasamplestep" value="0.005"/>
+    </node>
+
+    <!-- move_base with the default global planner. -->
+    <node name="move_base" pkg="move_base" type="move_base" output="screen">
+        <rosparam file="$(find qsne)/config/costmap_common.yaml" command="load" ns="global_costmap"/>
+        <rosparam file="$(find qsne)/config/costmap_common.yaml" command="load" ns="local_costmap"/>
+        <rosparam file="$(find qsne)/config/global_costmap.yaml" command="load"/>
+        <rosparam file="$(find qsne)/config/local_costmap.yaml" command="load"/>
+        <param name="base_global_planner" value="navfn/NavfnROS"/>
+        <!-- The QSNE bridge publishes /cmd_vel directly; the local planner is bypassed. -->
+        <param name="controller_frequency" value="$(arg control_rate_hz)"/>
+    </node>
+
+</launch>

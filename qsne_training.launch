@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!--
+    Minimal Gazebo launch for QSNE training.
+
+    Brings up Gazebo with a chosen Clearpath world, spawns the Husky, and
+    leaves the simulation paused so train.py can drive the unpause/pause
+    cycle through /gazebo/{unpause,pause}_physics.
+
+    Usage:
+        roslaunch qsne qsne_training.launch world:=office_world.world
+
+    Args:
+        world           World file name (Clearpath: office_world.world,
+                        construction_world.world, agriculture_world.world,
+                        inspection_world.world).
+        paused          Start Gazebo paused (true | false). Default true.
+        gui             Start the Gazebo GUI. Default false (headless).
+
+    Notes:
+        - The Husky URDF must publish /scan, /odom, and accept /cmd_vel.
+        - For 720-ray LiDAR, configure the Velodyne plugin with
+          samples=720 resolution=1, or let GazeboQSNEEnv resample.
+-->
+<launch>
+
+    <arg name="world"  default="office_world.world"/>
+    <arg name="paused" default="true"/>
+    <arg name="gui"    default="false"/>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find husky_gazebo)/worlds/$(arg world)"/>
+        <arg name="paused"     value="$(arg paused)"/>
+        <arg name="gui"        value="$(arg gui)"/>
+        <arg name="headless"   value="false"/>
+        <arg name="verbose"    value="false"/>
+    </include>
+
+    <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+        <arg name="x"   value="0.0"/>
+        <arg name="y"   value="0.0"/>
+        <arg name="yaw" value="0.0"/>
+    </include>
+
+</launch>
