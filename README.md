@@ -73,7 +73,7 @@ Python 3.8+ is required. ROS Noetic is only needed for hardware deployment.
 
 ```bash
 # Clone, create a virtualenv, and install Python dependencies.
-git clone <this-repo>
+git clone https://github.com/huynhtnhut97/QSNE-Quantum-Semantic-Navigation-Enhancement.git
 cd qsne_repo
 python -m venv .venv
 source .venv/bin/activate
